@@ -4,13 +4,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+    private final StudentRepository studentRepository;
+
+    StudentServiceImpl(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     @Override
     public Student getStudentById(Long studentId) {
-        int grade = (int) (studentId % 10) + 1;
-
-        String avatarUrl = "https://robohash.org/" + studentId;
-
-        return new Student(studentId, "Mocked Student " + studentId, grade, avatarUrl);
+        Student test = studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
+        return studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
     }
 }
