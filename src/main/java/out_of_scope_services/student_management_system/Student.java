@@ -1,25 +1,57 @@
 package out_of_scope_services.student_management_system;
 
+import jakarta.persistence.*;
+
+import java.util.List;
+
+@Entity
 public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long tenantId;
+
+    @ElementCollection
+    private List<Long> parentIds;
+
     private String name;
     private int grade;
     private String avatarUrl;
 
-    public Student(Long id, String name, int grade, String avatarUrl) {
-        this.id = id;
+    public Student() {
+    }
+
+    public Student(Long tenantId, List<Long> parentIds, String name, int grade, String avatarUrl) {
+        this.tenantId = tenantId;
+        this.parentIds = parentIds;
         this.name = name;
         this.grade = grade;
         this.avatarUrl = avatarUrl;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public List<Long> getParentIds() {
+        return parentIds;
+    }
+
+    public void setParentIds(List<Long> parentIds) {
+        this.parentIds = parentIds;
     }
 
     public String getName() {
