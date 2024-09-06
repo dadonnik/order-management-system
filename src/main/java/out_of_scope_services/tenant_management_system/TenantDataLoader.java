@@ -10,7 +10,7 @@ import java.util.List;
 public class TenantDataLoader {
 
     @Bean
-    CommandLineRunner loadData(TenantRepository tenantRepository) {
+    CommandLineRunner loadTenantData(TenantRepository tenantRepository) {
         return _ -> {
             Tenant tenant1 = new Tenant("Horizon International School", "123 Educational Blvd, Dubai, UAE", "https://logo1.com");
             Tenant tenant2 = new Tenant("Tenant 2", "Address 2", "https://logo2.com");
