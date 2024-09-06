@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @ComponentScan(basePackages = {
 		"com.example.order_management_system",
-		"out_of_scope_services.student_management_system",
-		"out_of_scope_services.payment_systems",
+		"out_of_scope_services",
 		"shared_lib"
 })
 @EntityScan(basePackages = "out_of_scope_services")  // Ensure the entity package is scanned
