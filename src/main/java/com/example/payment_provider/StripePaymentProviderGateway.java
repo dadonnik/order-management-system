@@ -1,8 +1,8 @@
 package com.example.payment_provider;
 
+import com.example.payment_system.Payment;
 import com.example.payment_system.PaymentStatus;
 import org.springframework.stereotype.Service;
-import com.example.payment_system.Payment;
 
 @Service
 public class StripePaymentProviderGateway implements PaymentProviderGateway {

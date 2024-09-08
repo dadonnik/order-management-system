@@ -2,7 +2,7 @@ package com.example.order_management_system;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -16,8 +16,7 @@ public class Order {
     private Long userId;
     private Long studentId;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
@@ -25,16 +24,20 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long tenantId, Long userId, Long studentId, Date createdAt, List<OrderItem> items) {
+    public Order(Long tenantId, Long userId, Long studentId, List<OrderItem> items) {
         this.tenantId = tenantId;
         this.userId = userId;
         this.studentId = studentId;
-        this.createdAt = createdAt;
         this.items = items;
 
         for (OrderItem item : items) {
             item.setOrder(this);
         }
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -69,11 +72,11 @@ public class Order {
         this.studentId = studentId;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 

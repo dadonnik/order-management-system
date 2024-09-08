@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TenantServiceImpl implements TenantService {
     private final TenantRepository tenantRepository;
+
     TenantServiceImpl(TenantRepository tenantRepository) {
         this.tenantRepository = tenantRepository;
     }

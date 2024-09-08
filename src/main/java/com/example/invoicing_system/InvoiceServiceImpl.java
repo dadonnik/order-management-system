@@ -21,6 +21,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final UserServiceClient userServiceClient;
     private final TenantServiceClient tenantServiceClient;
     private final PaymentServiceClient paymentServiceClient;
+    private final ReceiptRepository receiptRepository;
 
     public InvoiceServiceImpl(
             InvoiceRepository invoiceRepository,
@@ -28,7 +29,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             StudentServiceClient studentServiceClient,
             UserServiceClient userServiceClient,
             TenantServiceClient tenantServiceClient,
-            PaymentServiceClient paymentServiceClient
+            PaymentServiceClient paymentServiceClient,
+            ReceiptRepository receiptRepository
     ) {
         this.invoiceRepository = invoiceRepository;
         this.orderServiceClient = orderServiceClient;
@@ -36,6 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         this.userServiceClient = userServiceClient;
         this.tenantServiceClient = tenantServiceClient;
         this.paymentServiceClient = paymentServiceClient;
+        this.receiptRepository = receiptRepository;
     }
 
     /**
@@ -45,14 +48,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Invoice createInvoice(Long orderId, List<Long> selectedItems) {
         Order order = orderServiceClient.getOrderById(orderId);
 
-        if(order == null) {
+        if (order == null) {
             throw new IllegalArgumentException("Order not found");
         }
-        if(selectedItems.isEmpty()) {
+        if (selectedItems.isEmpty()) {
             throw new IllegalArgumentException("No items selected");
         }
 
-        if(selectedItems.stream().anyMatch(selectedItem -> order.getItems().stream().noneMatch(orderItem -> orderItem.getId().equals(selectedItem)))) {
+        if (selectedItems.stream().anyMatch(selectedItem -> order.getItems().stream().noneMatch(orderItem -> orderItem.getId().equals(selectedItem)))) {
             throw new IllegalArgumentException("Selected item(s) not part of the order");
         }
 
@@ -93,6 +96,20 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status) {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
         invoice.setStatus(status);
+
+        Order order = orderServiceClient.getOrderById(invoice.getOrderId());
+        Student student = studentServiceClient.getStudentById(order.getStudentId());
+        User user = userServiceClient.getUserById(order.getStudentId());
+        Tenant tenant = tenantServiceClient.getTenantById(order.getTenantId());
+        Payment payment = paymentServiceClient.getPaidPaymentByInvoiceId(invoiceId);
+
+        try {
+            Receipt receipt = new Receipt(tenant, user, student, payment, order, invoice);
+            receiptRepository.save(receipt);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return invoiceRepository.save(invoice);
     }
 
@@ -100,27 +117,7 @@ public class InvoiceServiceImpl implements InvoiceService {
      * {@inheritDoc}
      */
     @Override
-    public ReceiptResponse getInvoiceReceipt(Long invoiceId) {
-        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
-        Order order = orderServiceClient.getOrderById(invoice.getOrderId());
-        Student student = studentServiceClient.getStudentById(order.getStudentId());
-        User user = userServiceClient.getUserById(order.getStudentId());
-        Tenant tenant = tenantServiceClient.getTenantById(order.getTenantId());
-        Payment payment = paymentServiceClient.getPaidPaymentByInvoiceId(invoiceId);
-
-        List<OrderItem> orderItems = order.getItems().stream()
-                .filter(item -> invoice.getItems().contains(item.getId()))
-                .collect(Collectors.toList());
-
-
-        ReceiptResponse receiptResponse = new ReceiptResponse();
-        receiptResponse.setTenant(tenant);
-        receiptResponse.setUser(user);
-//        receiptResponse.setInvoice(invoice);
-        receiptResponse.setPayment(payment);
-        receiptResponse.setStudent(student);
-        receiptResponse.setOrderItems(orderItems);
-
-        return receiptResponse;
+    public Receipt getInvoiceReceipt(Long invoiceId) {
+        return receiptRepository.findByInvoiceId(invoiceId).orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
     }
 }

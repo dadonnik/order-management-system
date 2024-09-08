@@ -3,10 +3,10 @@ package com.example.payment_system;
 import com.example.invoicing_system.Invoice;
 import com.example.invoicing_system.InvoiceStatus;
 import com.example.payment_provider.PaymentProvider;
+import com.example.payment_provider.PaymentProviderFactory;
 import com.example.payment_provider.PaymentProviderGateway;
 import com.example.payment_provider.PaymentProviderResponse;
 import org.springframework.stereotype.Service;
-import com.example.payment_provider.PaymentProviderFactory;
 import shared_lib.InvoiceServiceClient;
 
 import java.util.List;

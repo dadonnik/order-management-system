@@ -17,12 +17,14 @@ public class User {
 
     private String email;
 
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @ElementCollection
     private List<Long> studentIds;
 
-    public User() {}
+    public User() {
+    }
 
     public User(Long tenantId, String name, String email, UserRole role, List<Long> studentIds) {
         this.tenantId = tenantId;

@@ -9,5 +9,5 @@ public interface InvoiceService {
 
     Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status);
 
-    ReceiptResponse getInvoiceReceipt(Long invoiceId);
+    Receipt getInvoiceReceipt(Long invoiceId);
 }

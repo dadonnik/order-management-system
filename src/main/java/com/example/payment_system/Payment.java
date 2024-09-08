@@ -1,24 +1,28 @@
 package com.example.payment_system;
 
 import com.example.payment_provider.PaymentProvider;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long invoiceId;
+
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
     private double amount;
+
+    @Enumerated(EnumType.STRING)
     private PaymentProvider paymentProvider;
     private String transactionReference;
     private String cardSchema;
+
+    private LocalDateTime createdAt;
 
     public Payment() {
     }
@@ -28,6 +32,11 @@ public class Payment {
         this.amount = amount;
         this.paymentProvider = paymentProvider;
         this.status = PaymentStatus.PENDING;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -84,5 +93,13 @@ public class Payment {
 
     public void setCardSchema(String cardSchema) {
         this.cardSchema = cardSchema;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

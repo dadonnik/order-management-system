@@ -8,23 +8,23 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-		"com.example",
-		"out_of_scope_services",
-		"shared_lib"
+        "com.example",
+        "out_of_scope_services",
+        "shared_lib"
 })
 @EntityScan(basePackages = {
-		"com.example",
-		"out_of_scope_services",
-		"shared_lib"
+        "com.example",
+        "out_of_scope_services",
+        "shared_lib"
 })
 @EnableJpaRepositories(basePackages = {
-		"com.example",
-		"out_of_scope_services",
-		"shared_lib"
+        "com.example",
+        "out_of_scope_services",
+        "shared_lib"
 })
 public class OrderManagementSystemApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(OrderManagementSystemApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OrderManagementSystemApplication.class, args);
+    }
 
 }

@@ -17,6 +17,7 @@ public class Invoice {
 
     private double totalAmount;
 
+    @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
     public Invoice(Long orderId, List<Long> items) {
@@ -30,8 +31,6 @@ public class Invoice {
 
     }
 
-
-    // Getters and setters
     public Long getId() {
         return id;
     }

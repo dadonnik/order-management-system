@@ -25,7 +25,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}/receipt")
-    public ReceiptResponse getInvoiceReceipt(@PathVariable Long invoiceId) {
+    public Receipt getInvoiceReceipt(@PathVariable Long invoiceId) {
         return invoiceService.getInvoiceReceipt(invoiceId);
     }
 
