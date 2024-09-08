@@ -1,4 +1,4 @@
-package shared_lib;
+package shared_lib.api_clients;
 
 import com.example.invoicing_system.Invoice;
 import com.example.invoicing_system.InvoiceStatus;

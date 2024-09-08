@@ -1,4 +1,4 @@
-package shared_lib;
+package shared_lib.api_clients;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

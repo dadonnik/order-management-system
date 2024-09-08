@@ -1,13 +1,9 @@
 package com.example.invoicing_system;
 
-import com.example.order_management_system.Order;
-import com.example.order_management_system.OrderItem;
-import com.example.payment_system.Payment;
 import org.springframework.stereotype.Service;
-import out_of_scope_services.student_management_system.Student;
-import out_of_scope_services.tenant_management_system.Tenant;
-import out_of_scope_services.user_management_system.User;
-import shared_lib.*;
+import out_of_scope_services.order_management_system.Order;
+import out_of_scope_services.order_management_system.OrderItem;
+import shared_lib.api_clients.OrderServiceClient;
 
 import java.util.List;
 import java.util.Set;
@@ -17,28 +13,13 @@ import java.util.stream.Collectors;
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final OrderServiceClient orderServiceClient;
-    private final StudentServiceClient studentServiceClient;
-    private final UserServiceClient userServiceClient;
-    private final TenantServiceClient tenantServiceClient;
-    private final PaymentServiceClient paymentServiceClient;
-    private final ReceiptRepository receiptRepository;
 
     public InvoiceServiceImpl(
             InvoiceRepository invoiceRepository,
-            OrderServiceClient orderServiceClient,
-            StudentServiceClient studentServiceClient,
-            UserServiceClient userServiceClient,
-            TenantServiceClient tenantServiceClient,
-            PaymentServiceClient paymentServiceClient,
-            ReceiptRepository receiptRepository
+            OrderServiceClient orderServiceClient
     ) {
         this.invoiceRepository = invoiceRepository;
         this.orderServiceClient = orderServiceClient;
-        this.studentServiceClient = studentServiceClient;
-        this.userServiceClient = userServiceClient;
-        this.tenantServiceClient = tenantServiceClient;
-        this.paymentServiceClient = paymentServiceClient;
-        this.receiptRepository = receiptRepository;
     }
 
     /**
@@ -93,31 +74,9 @@ public class InvoiceServiceImpl implements InvoiceService {
      * {@inheritDoc}
      */
     @Override
-    public Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status) {
+    public void updateInvoiceStatus(Long invoiceId, InvoiceStatus status) {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
         invoice.setStatus(status);
-
-        Order order = orderServiceClient.getOrderById(invoice.getOrderId());
-        Student student = studentServiceClient.getStudentById(order.getStudentId());
-        User user = userServiceClient.getUserById(order.getStudentId());
-        Tenant tenant = tenantServiceClient.getTenantById(order.getTenantId());
-        Payment payment = paymentServiceClient.getPaidPaymentByInvoiceId(invoiceId);
-
-        try {
-            Receipt receipt = new Receipt(tenant, user, student, payment, order, invoice);
-            receiptRepository.save(receipt);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return invoiceRepository.save(invoice);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Receipt getInvoiceReceipt(Long invoiceId) {
-        return receiptRepository.findByInvoiceId(invoiceId).orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
+        invoiceRepository.save(invoice);
     }
 }

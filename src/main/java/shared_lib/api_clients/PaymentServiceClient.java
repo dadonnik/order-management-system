@@ -1,4 +1,4 @@
-package shared_lib;
+package shared_lib.api_clients;
 
 import com.example.payment_system.Payment;
 import org.springframework.stereotype.Service;

@@ -1,12 +1,13 @@
-package com.example.invoicing_system;
+package com.example.receipt_system;
 
-import com.example.order_management_system.Order;
-import com.example.order_management_system.OrderItem;
+import com.example.invoicing_system.Invoice;
 import com.example.payment_system.Payment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
+import out_of_scope_services.order_management_system.Order;
+import out_of_scope_services.order_management_system.OrderItem;
 import out_of_scope_services.student_management_system.Student;
 import out_of_scope_services.tenant_management_system.Tenant;
 import out_of_scope_services.user_management_system.User;
@@ -23,6 +24,8 @@ public class Receipt {
     private Long id;
 
     private Long invoiceId;
+
+    private Long orderId;
 
     private String tenantName;
     private String tenantAddress;
@@ -45,6 +48,7 @@ public class Receipt {
 
     Receipt(Tenant tenant, User user, Student student, Payment payment, Order order, Invoice invoice) throws JsonProcessingException {
         setInvoiceId(invoice.getId());
+        setOrderId(order.getId());
 
         setTenantName(tenant.getName());
         setTenantAddress(tenant.getAddress());
@@ -193,5 +197,13 @@ public class Receipt {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 }

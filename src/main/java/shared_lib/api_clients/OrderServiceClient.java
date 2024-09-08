@@ -1,8 +1,8 @@
-package shared_lib;
+package shared_lib.api_clients;
 
-import com.example.order_management_system.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import out_of_scope_services.order_management_system.Order;
 
 @Service
 public class OrderServiceClient {

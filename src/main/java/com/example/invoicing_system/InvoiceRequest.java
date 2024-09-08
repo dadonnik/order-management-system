@@ -1,9 +1,16 @@
 package com.example.invoicing_system;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class InvoiceRequest {
+    @NotNull(message = "Invoice ID must not be null")
+    @Min(value = 1, message = "Invoice ID must be a positive number")
     private Long orderId;
+
+    @NotNull(message = "Selected items must not be null")
     private List<Long> selectedItems;
 
     public InvoiceRequest(Long orderId, List<Long> selectedItems) {

@@ -6,8 +6,10 @@ import com.example.payment_provider.PaymentProvider;
 import com.example.payment_provider.PaymentProviderFactory;
 import com.example.payment_provider.PaymentProviderGateway;
 import com.example.payment_provider.PaymentProviderResponse;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import shared_lib.InvoiceServiceClient;
+import shared_lib.api_clients.InvoiceServiceClient;
+import shared_lib.events.PaymentProcessedEvent;
 
 import java.util.List;
 
@@ -17,11 +19,18 @@ public class PaymentServiceImpl implements PaymentService {
     private final InvoiceServiceClient invoiceServiceClient;
     private final PaymentProviderFactory paymentProviderFactory;
     private final PaymentRepository paymentRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PaymentServiceImpl(InvoiceServiceClient invoiceServiceClient, PaymentProviderFactory paymentProviderFactory, PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(
+            InvoiceServiceClient invoiceServiceClient,
+            PaymentProviderFactory paymentProviderFactory,
+            PaymentRepository paymentRepository,
+            ApplicationEventPublisher eventPublisher
+    ) {
         this.invoiceServiceClient = invoiceServiceClient;
         this.paymentProviderFactory = paymentProviderFactory;
         this.paymentRepository = paymentRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -56,7 +65,9 @@ public class PaymentServiceImpl implements PaymentService {
         existingPayment.setTransactionReference(paymentResult.getTransactionReference());
         existingPayment.setCardSchema(paymentResult.getCardSchema());
         existingPayment = paymentRepository.save(existingPayment);
-        invoiceServiceClient.updateInvoiceStatus(existingPayment.getInvoiceId(), existingPayment.getStatus() == PaymentStatus.PAID ? InvoiceStatus.PAID : InvoiceStatus.CANCELLED);
+
+        eventPublisher.publishEvent(new PaymentProcessedEvent(this, existingPayment.getInvoiceId(), existingPayment.getStatus()));
+
         return existingPayment;
     }
 

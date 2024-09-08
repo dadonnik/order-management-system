@@ -1,6 +1,7 @@
-package com.example.order_management_system;
+package out_of_scope_services.order_management_system;
 
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class OrderServiceImpl implements OrderService {

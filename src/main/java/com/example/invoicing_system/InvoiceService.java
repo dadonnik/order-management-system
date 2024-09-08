@@ -7,7 +7,5 @@ public interface InvoiceService {
 
     Invoice getInvoice(Long invoiceId);
 
-    Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status);
-
-    Receipt getInvoiceReceipt(Long invoiceId);
+    void updateInvoiceStatus(Long invoiceId, InvoiceStatus status);
 }
