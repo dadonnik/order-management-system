@@ -1,8 +1,10 @@
 package shared_lib;
 
+import com.example.invoicing_system.Invoice;
+import com.example.invoicing_system.InvoiceStatus;
+import com.example.invoicing_system.UpdateInvoiceRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.example.invoicing_system.InvoiceResponse;
 
 @Service
 public class InvoiceServiceClient {
@@ -13,9 +15,13 @@ public class InvoiceServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    // Method to get the invoice details by calling the Invoice Service
-    public InvoiceResponse getInvoiceById(Long invoiceId) {
+    public Invoice getInvoiceById(Long invoiceId) {
         String url = "http://localhost:8080/api/invoices/" + invoiceId;
-        return restTemplate.getForObject(url, InvoiceResponse.class);
+        return restTemplate.getForObject(url, Invoice.class);
+    }
+
+    public Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status) {
+        String url = "http://localhost:8080/api/invoices/update";
+        return restTemplate.postForObject(url, new UpdateInvoiceRequest(invoiceId, status), Invoice.class);
     }
 }

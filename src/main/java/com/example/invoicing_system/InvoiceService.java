@@ -6,4 +6,8 @@ public interface InvoiceService {
     Invoice createInvoice(Long orderId, List<Long> selectedItems);
 
     Invoice getInvoice(Long invoiceId);
+
+    Invoice updateInvoiceStatus(Long invoiceId, InvoiceStatus status);
+
+    ReceiptResponse getInvoiceReceipt(Long invoiceId);
 }

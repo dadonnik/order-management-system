@@ -1,7 +1,6 @@
 package com.example.invoicing_system;
 
 import jakarta.persistence.*;
-import com.example.order_management_system.OrderItem;
 
 import java.util.List;
 
@@ -13,24 +12,24 @@ public class Invoice {
 
     private Long orderId;
 
-    @OneToMany
-    private List<OrderItem> items;
+    @ElementCollection
+    private List<Long> items;
 
     private double totalAmount;
 
-    public Invoice(Long orderId, List<OrderItem> items) {
+    private InvoiceStatus status;
+
+    public Invoice(Long orderId, List<Long> items) {
         this.orderId = orderId;
         this.items = items;
-        this.totalAmount = calculateTotalAmount(items);
+        this.totalAmount = 0;
+        this.status = InvoiceStatus.PENDING;
     }
 
     public Invoice() {
 
     }
 
-    private double calculateTotalAmount(List<OrderItem> items) {
-        return items.stream().mapToDouble(OrderItem::getPrice).sum();
-    }
 
     // Getters and setters
     public Long getId() {
@@ -49,11 +48,11 @@ public class Invoice {
         this.orderId = orderId;
     }
 
-    public List<OrderItem> getItems() {
+    public List<Long> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderItem> items) {
+    public void setItems(List<Long> items) {
         this.items = items;
     }
 
@@ -63,5 +62,13 @@ public class Invoice {
 
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public InvoiceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(InvoiceStatus status) {
+        this.status = status;
     }
 }

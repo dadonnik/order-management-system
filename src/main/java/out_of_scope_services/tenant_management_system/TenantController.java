@@ -12,7 +12,7 @@ public class TenantController {
         this.tenantService = tenantService;
     }
 
-    @GetMapping("/tenants/{id}")
+    @GetMapping("/api/tenants/{id}")
     public Tenant getTenant(@PathVariable Long id) {
         return tenantService.getTenantById(id);
     }

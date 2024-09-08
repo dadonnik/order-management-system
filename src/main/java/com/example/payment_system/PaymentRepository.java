@@ -3,7 +3,9 @@ package com.example.payment_system;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    Payment findByInvoiceId(Long invoiceId);
+    Payment findByInvoiceIdAndStatusIn(Long invoiceId, List<PaymentStatus> statuses);
 }

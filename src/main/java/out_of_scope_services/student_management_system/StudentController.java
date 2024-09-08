@@ -13,7 +13,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("/students/{id}")
+    @GetMapping("/api/students/{id}")
     public Student getStudent(@PathVariable Long id) {
         return studentService.getStudentById(id);
     }

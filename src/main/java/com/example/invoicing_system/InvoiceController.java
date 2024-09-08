@@ -23,4 +23,14 @@ public class InvoiceController {
     public Invoice getInvoice(@PathVariable Long invoiceId) {
         return invoiceService.getInvoice(invoiceId);
     }
+
+    @GetMapping("/{invoiceId}/receipt")
+    public ReceiptResponse getInvoiceReceipt(@PathVariable Long invoiceId) {
+        return invoiceService.getInvoiceReceipt(invoiceId);
+    }
+
+    @PostMapping("/update")
+    public Invoice updateInvoiceStatus(@RequestBody UpdateInvoiceRequest updateInvoiceRequest) {
+        return invoiceService.updateInvoiceStatus(updateInvoiceRequest.getInvoiceId(), updateInvoiceRequest.getStatus());
+    }
 }

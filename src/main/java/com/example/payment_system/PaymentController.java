@@ -18,4 +18,14 @@ public class PaymentController {
     public Payment initializePayment(@RequestParam Long invoiceId) {
         return paymentService.initializePayment(invoiceId);
     }
+
+    @PostMapping("/process")
+    public Payment processPayment(@RequestParam Long paymentId) {
+        return paymentService.processPayment(paymentId);
+    }
+
+    @GetMapping("/{invoiceId}")
+    public Payment getPaidPaymentByInvoiceId(@PathVariable Long invoiceId) {
+        return paymentService.getPaidPaymentByInvoiceId(invoiceId);
+    }
 }

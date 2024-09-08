@@ -12,7 +12,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/orders/{id}")
+    @GetMapping("/api/orders/{id}")
     public Order getOrder(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }

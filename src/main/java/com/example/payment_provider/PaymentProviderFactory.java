@@ -7,15 +7,15 @@ import java.util.Map;
 
 @Service
 public class PaymentProviderFactory {
-    private final Map<String, PaymentProvider> paymentProviders;
+    private final Map<PaymentProvider, PaymentProviderGateway> paymentProviders;
 
     @Autowired
-    public PaymentProviderFactory(Map<String, PaymentProvider> paymentProviders) {
+    public PaymentProviderFactory(Map<PaymentProvider, PaymentProviderGateway> paymentProviders) {
         this.paymentProviders = paymentProviders;
     }
 
-    public PaymentProvider getProvider(String paymentMethod) {
-        PaymentProvider provider = paymentProviders.get(paymentMethod.toLowerCase());
+    public PaymentProviderGateway getProvider(PaymentProvider paymentMethod) {
+        PaymentProviderGateway provider = paymentProviders.get(paymentMethod);
         if (provider == null) {
             throw new IllegalArgumentException("Unsupported payment method: " + paymentMethod);
         }

@@ -10,16 +10,16 @@ import java.util.Map;
 public class PaymentConfig {
 
     @Autowired
-    private StripePaymentProvider stripePaymentProvider;
+    private StripePaymentProviderGateway stripePaymentProvider;
 
     @Autowired
-    private PayPalPaymentProvider payPalPaymentProvider;
+    private PayPalPaymentProviderGateway payPalPaymentProvider;
 
     @Bean
-    public Map<PaymentMethod, PaymentProvider> paymentProviders() {
+    public Map<PaymentProvider, PaymentProviderGateway> paymentProviders() {
         return Map.of(
-                PaymentMethod.STRIPE, stripePaymentProvider,
-                PaymentMethod.PAYPAL, payPalPaymentProvider
+                PaymentProvider.STRIPE, stripePaymentProvider,
+                PaymentProvider.PAYPAL, payPalPaymentProvider
         );
     }
 }

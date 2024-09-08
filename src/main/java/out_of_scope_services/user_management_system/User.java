@@ -15,6 +15,8 @@ public class User {
 
     private String name;
 
+    private String email;
+
     private UserRole role;
 
     @ElementCollection
@@ -22,11 +24,12 @@ public class User {
 
     public User() {}
 
-    public User(Long tenantId, String name, UserRole role, List<Long> studentIds) {
+    public User(Long tenantId, String name, String email, UserRole role, List<Long> studentIds) {
         this.tenantId = tenantId;
         this.studentIds = studentIds;
         this.name = name;
         this.role = role;
+        this.email = email;
     }
 
     public Long getId() {
@@ -67,5 +70,13 @@ public class User {
 
     public void setStudentIds(List<Long> studentIds) {
         this.studentIds = studentIds;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
