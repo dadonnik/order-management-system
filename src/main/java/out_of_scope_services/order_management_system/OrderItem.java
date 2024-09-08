@@ -1,11 +1,8 @@
-package out_of_scope_services.payment_systems.invoicing_system;
+package out_of_scope_services.order_management_system;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
-// TODO move to order service when created
 @Entity
 public class OrderItem {
     @Id
@@ -15,8 +12,12 @@ public class OrderItem {
     private String name;
     private double price;
 
-    public OrderItem(Long id, String name, double price) {
-        this.id = id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Order order;
+
+    public OrderItem(String name, double price) {
         this.name = name;
         this.price = price;
     }
@@ -25,7 +26,6 @@ public class OrderItem {
 
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -48,6 +48,14 @@ public class OrderItem {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }
 

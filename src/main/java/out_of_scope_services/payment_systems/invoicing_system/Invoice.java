@@ -1,6 +1,7 @@
 package out_of_scope_services.payment_systems.invoicing_system;
 
 import jakarta.persistence.*;
+import out_of_scope_services.order_management_system.OrderItem;
 
 import java.util.List;
 
