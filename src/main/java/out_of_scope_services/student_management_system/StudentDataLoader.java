@@ -3,9 +3,6 @@ package out_of_scope_services.student_management_system;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import out_of_scope_services.user_management_system.User;
-import out_of_scope_services.user_management_system.UserRepository;
-import out_of_scope_services.user_management_system.UserRole;
 
 import java.util.List;
 

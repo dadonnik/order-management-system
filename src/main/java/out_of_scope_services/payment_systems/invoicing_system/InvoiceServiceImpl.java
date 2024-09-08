@@ -1,8 +1,8 @@
 package out_of_scope_services.payment_systems.invoicing_system;
 
 import org.springframework.stereotype.Service;
+import out_of_scope_services.order_management_system.OrderItem;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +22,13 @@ public class InvoiceServiceImpl implements InvoiceService {
      */
     @Override
     public Invoice createInvoice(Long orderId, List<Long> selectedItems) {
-        // Assume you retrieve the items based on selectedItems
         List<OrderItem> items = List.of(
-                new OrderItem(1L, "Item 1", 50.00),
-                new OrderItem(2L, "Item 2", 30.00)
+                new OrderItem("Item 1", 50.00),
+                new OrderItem("Item 2", 30.00)
         );
 
         Invoice invoice = new Invoice(orderId, items);
-        return invoiceRepository.save(invoice);  // Persist the invoice in the database
+        return invoiceRepository.save(invoice);
     }
 
     /**

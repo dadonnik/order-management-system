@@ -12,7 +12,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student getStudentById(Long studentId) {
-        Student test = studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
         return studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
     }
 }
