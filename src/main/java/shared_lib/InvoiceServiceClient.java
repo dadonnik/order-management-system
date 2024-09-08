@@ -2,7 +2,7 @@ package shared_lib;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import out_of_scope_services.payment_systems.invoicing_system.InvoiceResponse;
+import com.example.invoicing_system.InvoiceResponse;
 
 @Service
 public class InvoiceServiceClient {
