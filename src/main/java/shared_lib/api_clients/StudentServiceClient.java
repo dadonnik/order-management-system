@@ -1,8 +1,11 @@
 package shared_lib.api_clients;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import out_of_scope_services.student_management_system.Student;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class StudentServiceClient {
@@ -13,8 +16,10 @@ public class StudentServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public Student getStudentById(Long studentId) {
+    @Async
+    public CompletableFuture<Student> getStudentById(Long studentId) {
         String url = "http://localhost:8080/api/students/" + studentId;
-        return restTemplate.getForObject(url, Student.class);
+        Student student = restTemplate.getForObject(url, Student.class);
+        return CompletableFuture.completedFuture(student);
     }
 }

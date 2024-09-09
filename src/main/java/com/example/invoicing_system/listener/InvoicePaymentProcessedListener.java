@@ -15,14 +15,11 @@ public class InvoicePaymentProcessedListener {
         this.invoiceService = invoiceService;
     }
 
-    // Will be replaced with RMQ/Kafka
+    // TODO will be replaced with RMQ/Kafka
     @EventListener
     public void handlePaymentProcessedEvent(PaymentProcessedEvent event) {
-        if (event.getStatus() != PaymentStatus.PAID) {
-            return;
+        if (event.getStatus() == PaymentStatus.PAID) {
+            invoiceService.updateInvoiceStatus(event.getInvoiceId(), InvoiceStatus.PAID);
         }
-
-        InvoiceStatus status = event.getStatus() == PaymentStatus.PAID ? InvoiceStatus.PAID : InvoiceStatus.PENDING;
-        invoiceService.updateInvoiceStatus(event.getInvoiceId(), status);
     }
 }

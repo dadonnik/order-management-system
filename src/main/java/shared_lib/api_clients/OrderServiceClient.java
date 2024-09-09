@@ -1,8 +1,11 @@
 package shared_lib.api_clients;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import out_of_scope_services.order_management_system.Order;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OrderServiceClient {
@@ -13,8 +16,10 @@ public class OrderServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public Order getOrderById(Long orderId) {
+    @Async
+    public CompletableFuture<Order> getOrderById(Long orderId) {
         String url = "http://localhost:8080/api/orders/" + orderId;
-        return restTemplate.getForObject(url, Order.class);
+        Order order = restTemplate.getForObject(url, Order.class);
+        return CompletableFuture.completedFuture(order);
     }
 }

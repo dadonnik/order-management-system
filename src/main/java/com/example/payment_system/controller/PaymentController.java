@@ -23,7 +23,7 @@ public class PaymentController {
 
     @PostMapping("/process")
     public Payment processPayment(@RequestParam Long paymentId) {
-        return paymentService.processPayment(paymentId);
+        return paymentService.handlePaymentWebhook(paymentId);
     }
 
     @GetMapping("/{invoiceId}")

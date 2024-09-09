@@ -11,6 +11,7 @@ import out_of_scope_services.order_management_system.OrderItem;
 import out_of_scope_services.student_management_system.Student;
 import out_of_scope_services.tenant_management_system.Tenant;
 import out_of_scope_services.user_management_system.User;
+import shared_lib.models.Money;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +38,8 @@ public class Receipt {
     private Integer studentGrade;
     private String studentAvatar;
 
-    private String paymentAmount;
+    @Embedded
+    private Money paymentAmount;
     private String paymentProvider;
     private String paymentCardSchema;
     private String paymentTransactionReference;
@@ -60,7 +62,7 @@ public class Receipt {
         setStudentGrade(student.getGrade());
         setStudentAvatar(student.getAvatarUrl());
 
-        setPaymentAmount(payment.getAmount().toString());
+        setPaymentAmount(payment.getAmount());
         setPaymentProvider(payment.getPaymentProvider().toString());
         setPaymentCardSchema(payment.getCardSchema());
         setPaymentTransactionReference(payment.getTransactionReference());
@@ -142,11 +144,11 @@ public class Receipt {
         this.studentAvatar = studentAvatar;
     }
 
-    public String getPaymentAmount() {
+    public Money getPaymentAmount() {
         return paymentAmount;
     }
 
-    public void setPaymentAmount(String paymentAmount) {
+    public void setPaymentAmount(Money paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 

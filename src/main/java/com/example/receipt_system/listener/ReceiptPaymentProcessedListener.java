@@ -14,6 +14,8 @@ import out_of_scope_services.user_management_system.User;
 import shared_lib.api_clients.*;
 import shared_lib.events.PaymentProcessedEvent;
 
+import java.util.concurrent.CompletableFuture;
+
 @Component
 public class ReceiptPaymentProcessedListener {
     private final InvoiceServiceClient invoiceServiceClient;
@@ -49,18 +51,31 @@ public class ReceiptPaymentProcessedListener {
             return;
         }
 
-        Invoice invoice = invoiceServiceClient.getInvoiceById(event.getInvoiceId());
-        Order order = orderServiceClient.getOrderById(invoice.getOrderId());
-        Student student = studentServiceClient.getStudentById(order.getStudentId());
-        User user = userServiceClient.getUserById(order.getStudentId());
-        Tenant tenant = tenantServiceClient.getTenantById(order.getTenantId());
-        Payment payment = paymentServiceClient.getPaidPaymentByInvoiceId(event.getInvoiceId());
+        CompletableFuture<Invoice> invoiceFuture = invoiceServiceClient.getInvoiceById(event.getInvoiceId());
+        CompletableFuture<Order> orderFuture = invoiceFuture.thenCompose(invoice -> orderServiceClient.getOrderById(invoice.getOrderId()));
+        CompletableFuture<Student> studentFuture = orderFuture.thenCompose(order -> studentServiceClient.getStudentById(order.getStudentId()));
+        CompletableFuture<User> userFuture = orderFuture.thenCompose(order -> userServiceClient.getUserById(order.getStudentId()));
+        CompletableFuture<Tenant> tenantFuture = orderFuture.thenCompose(order -> tenantServiceClient.getTenantById(order.getTenantId()));
+        CompletableFuture<Payment> paymentFuture = paymentServiceClient.getPaidPaymentByInvoiceId(event.getInvoiceId());
 
-        try {
-            Receipt receipt = new Receipt(tenant, user, student, payment, order, invoice);
-            receiptRepository.save(receipt);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CompletableFuture.allOf(invoiceFuture, orderFuture, studentFuture, userFuture, tenantFuture, paymentFuture)
+                .thenRun(() -> {
+                    try {
+                        Invoice invoice = invoiceFuture.join();
+                        Order order = orderFuture.join();
+                        Student student = studentFuture.join();
+                        User user = userFuture.join();
+                        Tenant tenant = tenantFuture.join();
+                        Payment payment = paymentFuture.join();
+
+                        Receipt receipt = new Receipt(tenant, user, student, payment, order, invoice);
+                        receiptRepository.save(receipt);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 }

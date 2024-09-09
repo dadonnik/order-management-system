@@ -2,7 +2,7 @@ package com.example.payment_system.model;
 
 import com.example.payment_provider.PaymentProvider;
 import jakarta.persistence.*;
-import shared_lib.models.Price;
+import shared_lib.models.Money;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +21,7 @@ public class Payment {
     @AttributeOverrides({
             @AttributeOverride(name = "price", column = @Column(name = "amount"))
     })
-    private Price amount;
+    private Money amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentProvider paymentProvider;
@@ -30,14 +30,17 @@ public class Payment {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime dueTo;
+
     public Payment() {
     }
 
-    public Payment(Long invoiceId, Price amount, PaymentProvider paymentProvider) {
+    public Payment(Long invoiceId, Money amount, PaymentProvider paymentProvider) {
         this.invoiceId = invoiceId;
         this.amount = amount;
         this.paymentProvider = paymentProvider;
         this.status = PaymentStatus.PENDING;
+        this.dueTo = LocalDateTime.now().plusMinutes(5);
     }
 
     @PrePersist
@@ -69,11 +72,11 @@ public class Payment {
         this.status = status;
     }
 
-    public Price getAmount() {
+    public Money getAmount() {
         return amount;
     }
 
-    public void setAmount(Price amount) {
+    public void setAmount(Money amount) {
         this.amount = amount;
     }
 
@@ -107,5 +110,13 @@ public class Payment {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getDueTo() {
+        return dueTo;
+    }
+
+    public void setDueTo(LocalDateTime dueTo) {
+        this.dueTo = dueTo;
     }
 }

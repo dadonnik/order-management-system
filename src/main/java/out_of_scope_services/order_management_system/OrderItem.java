@@ -2,7 +2,7 @@ package out_of_scope_services.order_management_system;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import shared_lib.models.Price;
+import shared_lib.models.Money;
 
 @Entity
 public class OrderItem {
@@ -14,7 +14,7 @@ public class OrderItem {
     private String name;
 
     @Embedded
-    private Price price;
+    private Money money;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
@@ -24,9 +24,9 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(String name, Price price) {
+    public OrderItem(String name, Money money) {
         this.name = name;
-        this.price = price;
+        this.money = money;
     }
 
     public Long getId() {
@@ -45,12 +45,12 @@ public class OrderItem {
         this.name = name;
     }
 
-    public Price getPrice() {
-        return price;
+    public Money getPrice() {
+        return money;
     }
 
-    public void setPrice(Price price) {
-        this.price = price;
+    public void setPrice(Money money) {
+        this.money = money;
     }
 
     public Order getOrder() {

@@ -294,27 +294,30 @@ Some limitations of this simulation:
 - Example of shared interfaces `imports in InvoiceServiceImpl.java`:
   ```java
     package com.example.invoicing_system;
+  
+    import com.example.invoicing_system.model.Invoice;
+    import com.example.invoicing_system.model.InvoiceRepository;
+    import com.example.invoicing_system.model.InvoiceStatus;
     import org.springframework.stereotype.Service;
     import out_of_scope_services.order_management_system.Order;
+    import out_of_scope_services.order_management_system.OrderItem;
     import shared_lib.api_clients.OrderServiceClient;
-    import shared_lib.models.Price;
+    import shared_lib.models.Money;
     
-    import java.util.List;
-    import java.util.Set;
-    import java.util.stream.Collectors;
   ```
-  `order_management_system.Order` and `shared_lib.models.Price;` are shared interfaces.
+  `order_management_system.Order` and `shared_lib.models.Money;` are shared interfaces.
 - For simplicity DTOs weren't used. All services use the same model classes.
 
 ## In-scope user journey:
 1. **Order Management System** creates an order with items for particular Parent related to particular student in particular school. *Out of scope, but it's entrypoint of payment processing flow*
 2. **Invoicing System** creates an invoice based on the order. Invoice contains selected items from the order. Invoice can have 3 statuses: `PENDING`, `PAID`, `CANCELLED`. If customer selects items which are already assigned to another not-cancelled invoice, request will be rejected. 
 For e.g. customer created invoice with items 1,2,3. Then customer tries to create another invoice with items 3,4. Request will be rejected, because item `3` is already assigned to another invoice.
-3. **Payment Processing System** initializes the payment based on invoiceId. Payment can have 3 statuses: `PENDING`, `PAID`, `FAILED`. Payment is idempotent by invoiceId + status: `PENDING`/`PAID`.
-If Payment is in `PENDING` or `PAID` status, further requests with the same invoiceId will not create new payments. However, if payment is in `FAILED` status, new payment can be created.
-4. When payment is initialized, **Payment Provider** is called to process the payment. Payment provider is a factory to communicate with external payment gateways like Stripe, Checkout, PayPal.
-5. **Payment Processing System** Simulates a webhook call from **Payment Provider** about payment result. (In this example we are calling this endpoint manually passing paymentId)
+3. **Payment Processing System** initializes the payment based on invoiceId. Payment can have 4 statuses: `CREATED`, `PENDING`, `PAID`, `FAILED`. Payment is idempotent by invoiceId + status:`CREATED`/`PENDING`/`PAID`.
+If Payment is in `CREATED`,`PENDING` or `PAID` status, further requests with the same invoiceId will not create new payments. However, if payment is in `FAILED` status, new payment can be created.
+Status PENDING means that payment is initialized and waiting for payment provider to process it. Using due_to field we can deal with scenarios when payment is not processed in time.
+4. When payment is initialized, **Payment Provider** is called to initialize the payment in the gateway side. Payment status changed from `CREATED` to `PENDING`. Payment provider is a factory to communicate with external payment gateways like Stripe, Checkout, PayPal.
+5. **Payment Processing System** Simulates a webhook call from **Payment Provider** with payment result. (In this example we are calling this endpoint manually passing paymentId and system simulates, response came from gateway side.)
 6. **Payment Processing System** Creates a PaymentProcessed Event. (Used spring-boot observer pattern to simulate event-driven architecture)
-7. **Invoicing System** listens to PaymentProcessed Event and updates invoice status to `PAID`.
+7. **Invoicing System** listens to PaymentProcessed Event and updates invoice status to `PAID` or `FAILED`.
 8. **Receipt Management System** listens to PaymentProcessed Event and creates a receipt based on payment information.
 9. **Receipt Management System** stores the receipt in the database. User can query it by orderId, invoiceId or receiptId.

@@ -1,8 +1,9 @@
 package com.example.invoicing_system.model;
 
 import jakarta.persistence.*;
-import shared_lib.models.Price;
+import shared_lib.models.Money;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -20,20 +21,27 @@ public class Invoice {
     @AttributeOverrides({
             @AttributeOverride(name = "price", column = @Column(name = "total_amount"))
     })
-    private Price totalAmount;
+    private Money totalAmount;
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
-    public Invoice(Long orderId, List<Long> items) {
+    private LocalDateTime createdAt;
+
+    public Invoice(Long orderId, List<Long> items, Money totalAmount) {
         this.orderId = orderId;
         this.items = items;
-        this.totalAmount = new Price("0");
+        this.totalAmount = totalAmount;
         this.status = InvoiceStatus.PENDING;
     }
 
     public Invoice() {
 
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -60,11 +68,11 @@ public class Invoice {
         this.items = items;
     }
 
-    public Price getTotalAmount() {
+    public Money getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(Price totalAmount) {
+    public void setTotalAmount(Money totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -74,5 +82,13 @@ public class Invoice {
 
     public void setStatus(InvoiceStatus status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

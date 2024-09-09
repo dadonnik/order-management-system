@@ -2,10 +2,7 @@ package com.example.payment_system;
 
 import com.example.invoicing_system.model.Invoice;
 import com.example.invoicing_system.model.InvoiceStatus;
-import com.example.payment_provider.PaymentProvider;
-import com.example.payment_provider.PaymentProviderFactory;
-import com.example.payment_provider.PaymentProviderGateway;
-import com.example.payment_provider.PaymentProviderResponse;
+import com.example.payment_provider.*;
 import com.example.payment_system.model.Payment;
 import com.example.payment_system.model.PaymentRepository;
 import com.example.payment_system.model.PaymentStatus;
@@ -18,10 +15,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 import shared_lib.api_clients.InvoiceServiceClient;
 import shared_lib.events.PaymentProcessedEvent;
-import shared_lib.models.Price;
+import shared_lib.models.Money;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,18 +41,21 @@ public class PaymentServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private PaymentProviderAdvisor paymentProviderAdvisor;
+
     @InjectMocks
     private PaymentServiceImpl paymentService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(invoiceServiceClient, paymentProviderFactory, paymentRepository, eventPublisher);
+        paymentService = new PaymentServiceImpl(invoiceServiceClient, paymentProviderFactory, paymentRepository, eventPublisher, paymentProviderAdvisor);
     }
 
     @Test
     public void testInitializePayment_ExistingPaymentFound() {
-        Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+        Payment existingPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PENDING);
 
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(existingPayment);
@@ -71,7 +72,7 @@ public class PaymentServiceTest {
     @Test
     public void testInitializePayment_InvoiceNotFound() {
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(null);
-        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(null); // Simulating invoice not found
+        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(CompletableFuture.completedFuture(null)); // Simulating invoice not found
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             paymentService.initializePayment(1L);
@@ -87,9 +88,9 @@ public class PaymentServiceTest {
 
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(null);
 
-        Invoice invoice = new Invoice(1L, List.of(1L, 2L));
+        Invoice invoice = new Invoice(1L, List.of(1L, 2L), new Money("0"));
         invoice.setStatus(InvoiceStatus.PAID);
-        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(invoice);
+        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(CompletableFuture.completedFuture(invoice));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             paymentService.initializePayment(1L);
@@ -104,27 +105,39 @@ public class PaymentServiceTest {
     public void testInitializePayment_SuccessfulNewPayment() {
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(null);
 
-        Invoice invoice = new Invoice(1L, List.of(1L, 2L));
-        invoice.setStatus(InvoiceStatus.PENDING); // Invoice is pending
-        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(invoice);
+        Invoice invoice = new Invoice(1L, List.of(1L, 2L), new Money("50000"));
+        invoice.setStatus(InvoiceStatus.PENDING);
+        when(invoiceServiceClient.getInvoiceById(1L)).thenReturn(CompletableFuture.completedFuture(invoice));
 
-        Payment savedPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+        Payment savedPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         savedPayment.setStatus(PaymentStatus.PENDING);
         when(paymentRepository.save(any(Payment.class))).thenReturn(savedPayment);
 
+        // Mocking the paymentProviderFactory to return the mocked PaymentProviderGateway
+        when(paymentProviderFactory.getProvider(PaymentProvider.STRIPE)).thenReturn(paymentProviderGateway);
+
+        // Mocking the payment provider gateway to return a fake redirect URL
+        when(paymentProviderGateway.initializePayment(any(Payment.class))).thenReturn("https://fake-url.com/payment");
+
+        when(paymentProviderAdvisor.advise(savedPayment.getAmount())).thenReturn(PaymentProvider.STRIPE);
+
         Payment result = paymentService.initializePayment(1L);
 
+        // Validate the result
         assertNotNull(result);
         assertEquals(PaymentStatus.PENDING, result.getStatus());
-        assertEquals(new Price("50000"), result.getAmount());
+        assertEquals(new Money("50000"), result.getAmount());
         assertEquals(PaymentProvider.STRIPE, result.getPaymentProvider());
 
-        verify(paymentRepository).save(any(Payment.class));
+        verify(paymentRepository, times(2)).save(any(Payment.class));
+
+        verify(paymentProviderFactory).getProvider(PaymentProvider.STRIPE);
+        verify(paymentProviderGateway).initializePayment(any(Payment.class));
     }
 
     @Test
     public void testInitializePayment_ExistingPaidPaymentFound() {
-        Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+        Payment existingPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PAID);
 
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(existingPayment);
@@ -139,23 +152,23 @@ public class PaymentServiceTest {
     }
 
     @Test
-    public void testProcessPayment_PaymentNotFound() {
+    public void testHandlePayment_PaymentWebhookNotFound() {
         when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            paymentService.processPayment(1L);
+            paymentService.handlePaymentWebhook(1L);
         });
 
         assertEquals("Payment not found", exception.getMessage());
     }
 
     @Test
-    public void testProcessPayment_PaymentAlreadyProcessed() {
-        Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+    public void testHandlePayment_PaymentWebhookAlreadyProcessed() {
+        Payment existingPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PAID);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(existingPayment));
 
-        Payment result = paymentService.processPayment(1L);
+        Payment result = paymentService.handlePaymentWebhook(1L);
 
         assertNotNull(result);
         assertEquals(PaymentStatus.PAID, result.getStatus());
@@ -165,18 +178,18 @@ public class PaymentServiceTest {
     }
 
     @Test
-    public void testProcessPayment_ZeroAmountPayment() {
-        Payment existingPayment = new Payment(1L, new Price("0"), PaymentProvider.STRIPE);
+    public void testHandlePayment_ZeroAmountPaymentWebhook() {
+        Payment existingPayment = new Payment(1L, new Money("0"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PENDING);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(existingPayment));
 
         when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Payment result = paymentService.processPayment(1L);
+        Payment result = paymentService.handlePaymentWebhook(1L);
 
         assertNotNull(result);
         assertEquals(PaymentStatus.PAID, result.getStatus());
-        assertEquals(new Price("0"), result.getAmount());
+        assertEquals(new Money("0"), result.getAmount());
 
         verify(paymentRepository).save(existingPayment);
         verify(eventPublisher).publishEvent(any(PaymentProcessedEvent.class));
@@ -184,19 +197,19 @@ public class PaymentServiceTest {
     }
 
     @Test
-    public void testProcessPayment_SuccessfulProcessing() {
-        Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+    public void testHandlePayment_Webhook_SuccessfulProcessing() {
+        Payment existingPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PENDING);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(existingPayment));
 
         PaymentProviderResponse providerResponse = new PaymentProviderResponse(PaymentStatus.PAID, "txn123", "VISA");
 
         when(paymentProviderFactory.getProvider(PaymentProvider.STRIPE)).thenReturn(paymentProviderGateway);
-        when(paymentProviderGateway.processPayment(existingPayment)).thenReturn(providerResponse);
+        when(paymentProviderGateway.handlePaymentWebhook(existingPayment)).thenReturn(providerResponse);
 
         when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Payment result = paymentService.processPayment(1L);
+        Payment result = paymentService.handlePaymentWebhook(1L);
 
         assertNotNull(result);
         assertEquals(PaymentStatus.PAID, result.getStatus());
@@ -204,32 +217,32 @@ public class PaymentServiceTest {
         assertEquals("VISA", result.getCardSchema());
 
         verify(paymentProviderFactory).getProvider(PaymentProvider.STRIPE);
-        verify(paymentProviderGateway).processPayment(existingPayment);
+        verify(paymentProviderGateway).handlePaymentWebhook(existingPayment);
         verify(paymentRepository).save(existingPayment);
         verify(eventPublisher).publishEvent(any(PaymentProcessedEvent.class));
     }
 
     @Test
-    public void testProcessPayment_ProcessingFailure() {
-        Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
+    public void testHandlePayment_Webhook_ProcessingFailure() {
+        Payment existingPayment = new Payment(1L, new Money("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PENDING);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(existingPayment));
 
         PaymentProviderResponse providerResponse = new PaymentProviderResponse(PaymentStatus.FAILED, "txn123", null);
 
         when(paymentProviderFactory.getProvider(PaymentProvider.STRIPE)).thenReturn(paymentProviderGateway);
-        when(paymentProviderGateway.processPayment(existingPayment)).thenReturn(providerResponse);
+        when(paymentProviderGateway.handlePaymentWebhook(existingPayment)).thenReturn(providerResponse);
 
         when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Payment result = paymentService.processPayment(1L);
+        Payment result = paymentService.handlePaymentWebhook(1L);
 
         assertNotNull(result);
         assertEquals(PaymentStatus.FAILED, result.getStatus());
         assertEquals("txn123", result.getTransactionReference());
 
         verify(paymentProviderFactory).getProvider(PaymentProvider.STRIPE);
-        verify(paymentProviderGateway).processPayment(existingPayment);
+        verify(paymentProviderGateway).handlePaymentWebhook(existingPayment);
         verify(paymentRepository).save(existingPayment);
         verify(eventPublisher).publishEvent(any(PaymentProcessedEvent.class));
     }

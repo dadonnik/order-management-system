@@ -5,8 +5,9 @@ import com.example.invoicing_system.model.InvoiceRepository;
 import com.example.invoicing_system.model.InvoiceStatus;
 import org.springframework.stereotype.Service;
 import out_of_scope_services.order_management_system.Order;
+import out_of_scope_services.order_management_system.OrderItem;
 import shared_lib.api_clients.OrderServiceClient;
-import shared_lib.models.Price;
+import shared_lib.models.Money;
 
 import java.util.List;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class InvoiceServiceImpl implements InvoiceService {
      */
     @Override
     public Invoice createInvoice(Long orderId, List<Long> selectedItems) {
-        Order order = orderServiceClient.getOrderById(orderId);
+        Order order = orderServiceClient.getOrderById(orderId).join();
 
         if (order == null) {
             throw new IllegalArgumentException("Order not found");
@@ -39,7 +40,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new IllegalArgumentException("No items selected");
         }
 
-        if (selectedItems.stream().anyMatch(selectedItem -> order.getItems().stream().noneMatch(orderItem -> orderItem.getId().equals(selectedItem)))) {
+        if (selectedItems.stream().anyMatch(
+                selectedItem -> order.getItems().stream().noneMatch(
+                        orderItem -> orderItem.getId().equals(selectedItem)
+                )
+        )
+        ) {
             throw new IllegalArgumentException("Selected item(s) not part of the order");
         }
 
@@ -55,12 +61,11 @@ public class InvoiceServiceImpl implements InvoiceService {
             }
         }
 
-        Invoice newInvoice = new Invoice(orderId, selectedItems);
-        int totalAmount = order.getItems().stream()
+        Money totalAmount = order.getItems().stream()
                 .filter(item -> selectedItems.contains(item.getId()))
-                .mapToInt(value -> value.getPrice().toInt())
-                .sum();
-        newInvoice.setTotalAmount(new Price(String.valueOf(totalAmount)));
+                .map(OrderItem::getPrice)
+                .reduce(new Money("0", "AED", 2), Money::add);
+        Invoice newInvoice = new Invoice(orderId, selectedItems, totalAmount);
 
         return invoiceRepository.save(newInvoice);
     }
