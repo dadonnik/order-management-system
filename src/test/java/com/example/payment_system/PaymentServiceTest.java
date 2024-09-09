@@ -1,11 +1,15 @@
 package com.example.payment_system;
 
-import com.example.invoicing_system.Invoice;
-import com.example.invoicing_system.InvoiceStatus;
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.model.InvoiceStatus;
 import com.example.payment_provider.PaymentProvider;
 import com.example.payment_provider.PaymentProviderFactory;
 import com.example.payment_provider.PaymentProviderGateway;
 import com.example.payment_provider.PaymentProviderResponse;
+import com.example.payment_system.model.Payment;
+import com.example.payment_system.model.PaymentRepository;
+import com.example.payment_system.model.PaymentStatus;
+import com.example.payment_system.service.PaymentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -50,7 +54,6 @@ public class PaymentServiceTest {
 
     @Test
     public void testInitializePayment_ExistingPaymentFound() {
-        // Mock an existing payment
         Payment existingPayment = new Payment(1L, new Price("50000"), PaymentProvider.STRIPE);
         existingPayment.setStatus(PaymentStatus.PENDING);
 
@@ -76,7 +79,6 @@ public class PaymentServiceTest {
 
         assertEquals("Invoice not found", exception.getMessage());
 
-        // Verify that the payment repository's save method was never called
         verify(paymentRepository, never()).save(any(Payment.class));
     }
 

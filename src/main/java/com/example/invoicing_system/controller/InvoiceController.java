@@ -1,5 +1,8 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.controller;
 
+import com.example.invoicing_system.dto.InvoiceRequest;
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.service.InvoiceService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 

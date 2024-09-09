@@ -1,4 +1,6 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.dto;
+
+import com.example.invoicing_system.model.InvoiceStatus;
 
 public class UpdateInvoiceRequest {
     private Long invoiceId;

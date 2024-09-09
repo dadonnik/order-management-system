@@ -1,6 +1,6 @@
 package com.example.payment_provider;
 
-import com.example.payment_system.PaymentStatus;
+import com.example.payment_system.model.PaymentStatus;
 
 public class PaymentProviderResponse {
     private PaymentStatus status;

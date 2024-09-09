@@ -1,4 +1,4 @@
-package com.example.payment_system;
+package com.example.payment_system.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

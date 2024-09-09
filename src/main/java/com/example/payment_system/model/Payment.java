@@ -1,4 +1,4 @@
-package com.example.payment_system;
+package com.example.payment_system.model;
 
 import com.example.payment_provider.PaymentProvider;
 import jakarta.persistence.*;

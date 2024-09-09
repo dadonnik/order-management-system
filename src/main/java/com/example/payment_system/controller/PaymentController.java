@@ -1,5 +1,7 @@
-package com.example.payment_system;
+package com.example.payment_system.controller;
 
+import com.example.payment_system.model.Payment;
+import com.example.payment_system.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,5 +1,7 @@
-package com.example.receipt_system;
+package com.example.receipt_system.service;
 
+import com.example.receipt_system.model.Receipt;
+import com.example.receipt_system.model.ReceiptRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

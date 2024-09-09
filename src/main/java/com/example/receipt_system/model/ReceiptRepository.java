@@ -1,4 +1,4 @@
-package com.example.receipt_system;
+package com.example.receipt_system.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

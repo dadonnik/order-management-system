@@ -1,4 +1,4 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.model;
 
 import jakarta.persistence.*;
 import shared_lib.models.Price;

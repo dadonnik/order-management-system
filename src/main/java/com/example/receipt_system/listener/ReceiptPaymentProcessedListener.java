@@ -1,8 +1,10 @@
-package com.example.receipt_system;
+package com.example.receipt_system.listener;
 
-import com.example.invoicing_system.Invoice;
-import com.example.payment_system.Payment;
-import com.example.payment_system.PaymentStatus;
+import com.example.invoicing_system.model.Invoice;
+import com.example.payment_system.model.Payment;
+import com.example.payment_system.model.PaymentStatus;
+import com.example.receipt_system.model.Receipt;
+import com.example.receipt_system.model.ReceiptRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import out_of_scope_services.order_management_system.Order;
@@ -40,6 +42,7 @@ public class ReceiptPaymentProcessedListener {
         this.receiptRepository = receiptRepository;
     }
 
+    // Will be replaced with RMQ/Kafka
     @EventListener
     public void handlePaymentProcessedEvent(PaymentProcessedEvent event) {
         if (event.getStatus() != PaymentStatus.PAID) {

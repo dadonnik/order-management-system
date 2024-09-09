@@ -1,4 +1,7 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.service;
+
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.model.InvoiceStatus;
 
 import java.util.List;
 

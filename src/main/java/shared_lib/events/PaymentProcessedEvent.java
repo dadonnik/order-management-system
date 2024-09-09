@@ -1,6 +1,6 @@
 package shared_lib.events;
 
-import com.example.payment_system.PaymentStatus;
+import com.example.payment_system.model.PaymentStatus;
 import org.springframework.context.ApplicationEvent;
 
 public class PaymentProcessedEvent extends ApplicationEvent {

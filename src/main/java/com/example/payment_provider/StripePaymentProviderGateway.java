@@ -1,7 +1,7 @@
 package com.example.payment_provider;
 
-import com.example.payment_system.Payment;
-import com.example.payment_system.PaymentStatus;
+import com.example.payment_system.model.Payment;
+import com.example.payment_system.model.PaymentStatus;
 import org.springframework.stereotype.Service;
 
 @Service

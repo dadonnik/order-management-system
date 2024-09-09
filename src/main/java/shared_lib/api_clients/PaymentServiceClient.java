@@ -1,6 +1,6 @@
 package shared_lib.api_clients;
 
-import com.example.payment_system.Payment;
+import com.example.payment_system.model.Payment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

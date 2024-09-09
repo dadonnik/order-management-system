@@ -1,11 +1,14 @@
-package com.example.payment_system;
+package com.example.payment_system.service;
 
-import com.example.invoicing_system.Invoice;
-import com.example.invoicing_system.InvoiceStatus;
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.model.InvoiceStatus;
 import com.example.payment_provider.PaymentProvider;
 import com.example.payment_provider.PaymentProviderFactory;
 import com.example.payment_provider.PaymentProviderGateway;
 import com.example.payment_provider.PaymentProviderResponse;
+import com.example.payment_system.model.Payment;
+import com.example.payment_system.model.PaymentRepository;
+import com.example.payment_system.model.PaymentStatus;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import shared_lib.api_clients.InvoiceServiceClient;
@@ -76,6 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
         existingPayment.setCardSchema(paymentResult.getCardSchema());
         existingPayment = paymentRepository.save(existingPayment);
 
+        // Will be replaced with RMQ/Kafka
         eventPublisher.publishEvent(new PaymentProcessedEvent(this, existingPayment.getInvoiceId(), existingPayment.getStatus()));
 
         return existingPayment;

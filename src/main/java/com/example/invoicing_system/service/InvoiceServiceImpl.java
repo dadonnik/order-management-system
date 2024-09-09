@@ -1,5 +1,8 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.service;
 
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.model.InvoiceRepository;
+import com.example.invoicing_system.model.InvoiceStatus;
 import org.springframework.stereotype.Service;
 import out_of_scope_services.order_management_system.Order;
 import shared_lib.api_clients.OrderServiceClient;

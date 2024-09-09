@@ -1,5 +1,7 @@
-package com.example.receipt_system;
+package com.example.receipt_system.controller;
 
+import com.example.receipt_system.model.Receipt;
+import com.example.receipt_system.service.ReceiptService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

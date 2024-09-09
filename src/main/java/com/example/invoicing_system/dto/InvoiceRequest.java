@@ -1,4 +1,4 @@
-package com.example.invoicing_system;
+package com.example.invoicing_system.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

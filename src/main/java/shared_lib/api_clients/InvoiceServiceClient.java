@@ -1,8 +1,8 @@
 package shared_lib.api_clients;
 
-import com.example.invoicing_system.Invoice;
-import com.example.invoicing_system.InvoiceStatus;
-import com.example.invoicing_system.UpdateInvoiceRequest;
+import com.example.invoicing_system.dto.UpdateInvoiceRequest;
+import com.example.invoicing_system.model.Invoice;
+import com.example.invoicing_system.model.InvoiceStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

@@ -1,7 +1,7 @@
-package com.example.receipt_system;
+package com.example.receipt_system.model;
 
-import com.example.invoicing_system.Invoice;
-import com.example.payment_system.Payment;
+import com.example.invoicing_system.model.Invoice;
+import com.example.payment_system.model.Payment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +46,7 @@ public class Receipt {
     @Lob
     private String items;
 
-    Receipt(Tenant tenant, User user, Student student, Payment payment, Order order, Invoice invoice) throws JsonProcessingException {
+    public Receipt(Tenant tenant, User user, Student student, Payment payment, Order order, Invoice invoice) throws JsonProcessingException {
         setInvoiceId(invoice.getId());
         setOrderId(order.getId());
 
