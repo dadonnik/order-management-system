@@ -36,6 +36,15 @@ This project is a mocked "invoice and payment management system using microservi
     ```
 5. The application will start on `http://localhost:8080`
 
+### Steps to Run Locally with Docker
+1. Clone the repository `git clone git@github.com:dadonnik/order-management-system.git`
+2. Navigate to the project root directory
+3. Run the following command to build&run the project:
+    ```shell
+    docker compose up
+    ```
+4. The application will start on `http://localhost:8080`
+
 ## API Reference
 
 ### Swagger UI
