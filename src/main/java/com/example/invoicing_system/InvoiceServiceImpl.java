@@ -2,8 +2,8 @@ package com.example.invoicing_system;
 
 import org.springframework.stereotype.Service;
 import out_of_scope_services.order_management_system.Order;
-import out_of_scope_services.order_management_system.OrderItem;
 import shared_lib.api_clients.OrderServiceClient;
+import shared_lib.models.Price;
 
 import java.util.List;
 import java.util.Set;
@@ -53,11 +53,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice newInvoice = new Invoice(orderId, selectedItems);
-        double totalAmount = order.getItems().stream()
+        int totalAmount = order.getItems().stream()
                 .filter(item -> selectedItems.contains(item.getId()))
-                .mapToDouble(OrderItem::getPrice)
+                .mapToInt(value -> value.getPrice().toInt())
                 .sum();
-        newInvoice.setTotalAmount(totalAmount);
+        newInvoice.setTotalAmount(new Price(String.valueOf(totalAmount)));
 
         return invoiceRepository.save(newInvoice);
     }

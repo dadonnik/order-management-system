@@ -1,6 +1,5 @@
 package com.example.receipt_system;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,7 +20,7 @@ public class ReceiptController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Receipt>> getReceipt(
+    public List<Receipt> getReceipt(
             @RequestParam(required = false) Long receiptId,
             @RequestParam(required = false) Long invoiceId,
             @RequestParam(required = false) Long orderId) {
@@ -40,6 +39,6 @@ public class ReceiptController {
             throw new IllegalArgumentException("At least one of receiptId, invoiceId or orderId must be provided");
         }
 
-        return ResponseEntity.ok(result);
+        return result;
     }
 }

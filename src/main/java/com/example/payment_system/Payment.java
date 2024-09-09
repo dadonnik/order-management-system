@@ -2,6 +2,7 @@ package com.example.payment_system;
 
 import com.example.payment_provider.PaymentProvider;
 import jakarta.persistence.*;
+import shared_lib.models.Price;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,12 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
-    private double amount;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "price", column = @Column(name = "amount"))
+    })
+    private Price amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentProvider paymentProvider;
@@ -27,7 +33,7 @@ public class Payment {
     public Payment() {
     }
 
-    public Payment(Long invoiceId, double amount, PaymentProvider paymentProvider) {
+    public Payment(Long invoiceId, Price amount, PaymentProvider paymentProvider) {
         this.invoiceId = invoiceId;
         this.amount = amount;
         this.paymentProvider = paymentProvider;
@@ -63,11 +69,11 @@ public class Payment {
         this.status = status;
     }
 
-    public double getAmount() {
+    public Price getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(Price amount) {
         this.amount = amount;
     }
 

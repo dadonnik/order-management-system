@@ -1,6 +1,7 @@
 package com.example.invoicing_system;
 
 import jakarta.persistence.*;
+import shared_lib.models.Price;
 
 import java.util.List;
 
@@ -15,7 +16,11 @@ public class Invoice {
     @ElementCollection
     private List<Long> items;
 
-    private double totalAmount;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "price", column = @Column(name = "total_amount"))
+    })
+    private Price totalAmount;
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
@@ -23,7 +28,7 @@ public class Invoice {
     public Invoice(Long orderId, List<Long> items) {
         this.orderId = orderId;
         this.items = items;
-        this.totalAmount = 0;
+        this.totalAmount = new Price("0");
         this.status = InvoiceStatus.PENDING;
     }
 
@@ -55,11 +60,11 @@ public class Invoice {
         this.items = items;
     }
 
-    public double getTotalAmount() {
+    public Price getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(double totalAmount) {
+    public void setTotalAmount(Price totalAmount) {
         this.totalAmount = totalAmount;
     }
 

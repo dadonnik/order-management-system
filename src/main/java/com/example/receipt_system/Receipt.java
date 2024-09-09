@@ -37,7 +37,7 @@ public class Receipt {
     private Integer studentGrade;
     private String studentAvatar;
 
-    private Double paymentAmount;
+    private String paymentAmount;
     private String paymentProvider;
     private String paymentCardSchema;
     private String paymentTransactionReference;
@@ -60,7 +60,7 @@ public class Receipt {
         setStudentGrade(student.getGrade());
         setStudentAvatar(student.getAvatarUrl());
 
-        setPaymentAmount(payment.getAmount());
+        setPaymentAmount(payment.getAmount().toString());
         setPaymentProvider(payment.getPaymentProvider().toString());
         setPaymentCardSchema(payment.getCardSchema());
         setPaymentTransactionReference(payment.getTransactionReference());
@@ -142,11 +142,11 @@ public class Receipt {
         this.studentAvatar = studentAvatar;
     }
 
-    public Double getPaymentAmount() {
+    public String getPaymentAmount() {
         return paymentAmount;
     }
 
-    public void setPaymentAmount(Double paymentAmount) {
+    public void setPaymentAmount(String paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 

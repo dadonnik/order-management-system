@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 public class StripePaymentProviderGateway implements PaymentProviderGateway {
 
     @Override
+    // In real app will be triggered by Webhook from real payment gateway
     public PaymentProviderResponse processPayment(Payment payment) {
         System.out.println("Processing payment with Stripe for invoice: " + payment.getInvoiceId() + " amount: $" + payment.getAmount());
         String transactionReference = "STRIPE-" + (int) (Math.random() * 1000000);

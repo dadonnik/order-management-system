@@ -2,28 +2,31 @@ package out_of_scope_services.order_management_system;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import shared_lib.models.Price;
 
 @Entity
 public class OrderItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-    private double price;
+
+    @Embedded
+    private Price price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
 
-    public OrderItem(String name, double price) {
-        this.name = name;
-        this.price = price;
+    public OrderItem() {
     }
 
-    public OrderItem() {
-
+    public OrderItem(String name, Price price) {
+        this.name = name;
+        this.price = price;
     }
 
     public Long getId() {
@@ -42,11 +45,11 @@ public class OrderItem {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Price getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Price price) {
         this.price = price;
     }
 

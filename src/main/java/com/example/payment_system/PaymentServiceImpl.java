@@ -12,6 +12,7 @@ import shared_lib.api_clients.InvoiceServiceClient;
 import shared_lib.events.PaymentProcessedEvent;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -56,6 +57,15 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment processPayment(Long paymentId) {
         Payment existingPayment = paymentRepository.findById(paymentId).orElseThrow(() -> new IllegalArgumentException("Payment not found"));
         if (existingPayment.getStatus() != PaymentStatus.PENDING) {
+            return existingPayment;
+        }
+
+        if (Objects.equals(existingPayment.getAmount().getPrice(), "0")) {
+            existingPayment.setStatus(PaymentStatus.PAID);
+            existingPayment = paymentRepository.save(existingPayment);
+
+            eventPublisher.publishEvent(new PaymentProcessedEvent(this, existingPayment.getInvoiceId(), existingPayment.getStatus()));
+
             return existingPayment;
         }
 
