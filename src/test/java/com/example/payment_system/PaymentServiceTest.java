@@ -102,6 +102,32 @@ public class PaymentServiceTest {
     }
 
     @Test
+    void testInitializePayment_withZeroAmount_shouldMarkAsPaid() {
+        // Arrange
+        Long invoiceId = 1L;
+        Invoice mockInvoice = new Invoice();
+        mockInvoice.setId(invoiceId);
+        mockInvoice.setTotalAmount(new Money("0"));
+        mockInvoice.setStatus(InvoiceStatus.PENDING);
+
+        when(paymentRepository.findByInvoiceIdAndStatusIn(eq(invoiceId), anyList()))
+                .thenReturn(null);
+
+        when(invoiceServiceClient.getInvoiceById(invoiceId))
+                .thenReturn(CompletableFuture.completedFuture(mockInvoice));
+        when(paymentRepository.save(any(Payment.class))
+        ).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Payment payment = paymentService.initializePayment(invoiceId);
+
+        assertNotNull(payment);
+        assertEquals(PaymentStatus.PAID, payment.getStatus());
+        verify(paymentRepository, times(1)).save(payment);
+        verify(eventPublisher, times(1)).publishEvent(any(PaymentProcessedEvent.class));
+        verifyNoInteractions(paymentProviderFactory); // No interaction with payment provider gateway
+    }
+
+    @Test
     public void testInitializePayment_SuccessfulNewPayment() {
         when(paymentRepository.findByInvoiceIdAndStatusIn(eq(1L), anyList())).thenReturn(null);
 
@@ -129,7 +155,7 @@ public class PaymentServiceTest {
         assertEquals(new Money("50000"), result.getAmount());
         assertEquals(PaymentProvider.STRIPE, result.getPaymentProvider());
 
-        verify(paymentRepository, times(2)).save(any(Payment.class));
+        verify(paymentRepository, times(1)).save(any(Payment.class));
 
         verify(paymentProviderFactory).getProvider(PaymentProvider.STRIPE);
         verify(paymentProviderGateway).initializePayment(any(Payment.class));
@@ -175,25 +201,6 @@ public class PaymentServiceTest {
         verify(paymentProviderFactory, never()).getProvider(any(PaymentProvider.class));
         verify(paymentRepository, never()).save(any(Payment.class));
         verify(eventPublisher, never()).publishEvent(any());
-    }
-
-    @Test
-    public void testHandlePayment_ZeroAmountPaymentWebhook() {
-        Payment existingPayment = new Payment(1L, new Money("0"), PaymentProvider.STRIPE);
-        existingPayment.setStatus(PaymentStatus.PENDING);
-        when(paymentRepository.findById(1L)).thenReturn(Optional.of(existingPayment));
-
-        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Payment result = paymentService.handlePaymentWebhook(1L);
-
-        assertNotNull(result);
-        assertEquals(PaymentStatus.PAID, result.getStatus());
-        assertEquals(new Money("0"), result.getAmount());
-
-        verify(paymentRepository).save(existingPayment);
-        verify(eventPublisher).publishEvent(any(PaymentProcessedEvent.class));
-        verify(paymentProviderFactory, never()).getProvider(any(PaymentProvider.class));
     }
 
     @Test

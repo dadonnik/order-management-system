@@ -16,6 +16,9 @@ This project is a mocked "invoice and payment management system using microservi
 
 ---
 
+## Video Demo
+[Watch the video](https://youtu.be/6AMb4ixWvMQ)
+
 ## Local Setup Guide
 
 ### Prerequisites
